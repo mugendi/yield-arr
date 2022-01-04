@@ -1,0 +1,12 @@
+{
+  "name": "yield-arr",
+  "version": "1.0.0",
+  "description": "A module that yields one array value after the other sequentially and provides a back-off policy that allows for delays between yields.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["generator", "yield", "back-off", "array", "delay"],
+  "author": "",
+  "license": "MIT"
+}
