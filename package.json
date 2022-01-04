@@ -1,6 +1,6 @@
 {
   "name": "yield-arr",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A module that yields one array value after the other sequentially and provides a back-off policy that allows for delays between yields.",
   "main": "index.js",
   "scripts": {

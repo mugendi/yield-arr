@@ -62,17 +62,20 @@ class YieldArr {
 
 			if (this.arrIndex < this.arr.length) {
 				val = this.arr[this.arrIndex];
-                val.consumed = true;
+				val.consumed = true;
 				this.arrIndex++;
 			}
 
-			yield val ? val.value : undefined;
-			if (this.yieldDone) return;
+			yield val;
+
+			if (this.yieldDone) {
+				return;
+			}
 			// else
 		}
 	}
 
-	async get() {
+	async get(noValue=false) {
 		let self = this;
 		let val,
 			backOffDelay = this.opts.backOffDelay
@@ -89,18 +92,20 @@ class YieldArr {
 
 			if (val == undefined) {
 				// wait for update
-				// console.log('object');
-				await this.await_arr()
-					.then((resp) => {
-						if (!resp) {
-							self.yieldDone = true;
-						}
-					})
-					.catch(console.error);
+				let resp = await this.await_arr();
+
+				if (!resp) {
+					self.yieldDone = true;
+                    val = {value:undefined}
+				} else {
+					val = await this.get(true);
+				}
 			}
 		}
 
-		return val;
+        
+
+		return noValue ? val : val.value;
 	}
 
 	random_range(start = 0, end = 100) {
@@ -123,14 +128,10 @@ class YieldArr {
 				delay = 0,
 				maxDelay = this.opts.maxDelay || 0;
 
-                // console.log(maxDelay);
-
 			if (maxDelay) {
-                
 				let interval = setInterval(() => {
 					delay += ms;
 
-                    // console.log({delay , maxDelay});-
 
 					if (delay >= maxDelay) {
 						clearInterval(interval);
@@ -141,10 +142,8 @@ class YieldArr {
 						clearInterval(interval);
 						return resolve(true);
 					}
-
 				}, ms);
 			} else {
-				// console.log('end now');
 				resolve(false);
 			}
 		});
