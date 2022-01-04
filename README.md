@@ -9,7 +9,7 @@ When you need to yield array values in a **"disciplined manner"** ;)
 	const debug = require('debug')('yieldArr:test');
 
 	//require
-	const _ = (YieldArr = require('yield-arr'));
+	const YieldArr = require('yield-arr');
 
 	const opts = {
 		backOffDelay: [1000, 2000],
