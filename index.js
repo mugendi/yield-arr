@@ -119,24 +119,29 @@ class YieldArr {
 	await_arr() {
 		let self = this;
 		return new Promise((resolve, reject) => {
-			let ms = 10,
+			let ms = 50,
 				delay = 0,
 				maxDelay = this.opts.maxDelay || 0;
 
+                // console.log(maxDelay);
+
 			if (maxDelay) {
+                
 				let interval = setInterval(() => {
 					delay += ms;
 
+                    // console.log({delay , maxDelay});-
+
 					if (delay >= maxDelay) {
-						// console.log({ delay });
 						clearInterval(interval);
 						return resolve(false);
 					}
 
-					if (self.arr.length) {
+					if (this.arrIndex < this.arr.length) {
 						clearInterval(interval);
 						return resolve(true);
 					}
+
 				}, ms);
 			} else {
 				// console.log('end now');
