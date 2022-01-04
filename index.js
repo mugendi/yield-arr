@@ -14,17 +14,24 @@
 
 class YieldArr {
 	constructor(arr, opts) {
-		this.arr = arrify(arr);
-
-		opts = Object.assign(
-			// {
-			// 	backOffDelay: [100, 300],
-			// 	maxDelay: 3000,
-			// },
-			opts
-		);
-
+		arr = arrify(arr);
 		// Some validations
+		if (arr.length === 0)
+			throw new Error(
+				`An array or value must be passed as the first argument.`
+			);
+
+		this.arr = object_vals(arr);
+
+		// No Default options
+		// opts = Object.assign(
+		// 	// {
+		// 	// 	backOffDelay: [100, 300],
+		// 	// 	maxDelay: 3000,
+		// 	// },
+		// 	opts
+		// );
+
 		if ('backOffDelay' in opts) {
 			opts.backOffDelay = arrify(opts.backOffDelay).filter(
 				(v) => typeof v == 'number'
@@ -55,10 +62,11 @@ class YieldArr {
 
 			if (this.arrIndex < this.arr.length) {
 				val = this.arr[this.arrIndex];
+                val.consumed = true;
 				this.arrIndex++;
 			}
 
-			yield val;
+			yield val ? val.value : undefined;
 			if (this.yieldDone) return;
 			// else
 		}
@@ -138,10 +146,18 @@ class YieldArr {
 	}
 
 	update(arr) {
+		// No updates if we are done
+		if (this.yieldDone) return;
 		// arrify
-		arr = arrify(arr);
+		arr = object_vals(arrify(arr));
 		this.arr = [...this.arr, ...arr];
 	}
+}
+
+function object_vals(arr) {
+	return arr.map((value) => {
+		return { consumed: false, value };
+	});
 }
 
 function sample(arr) {
@@ -151,12 +167,13 @@ function sample(arr) {
 }
 
 function range(s, e) {
-	let arr = Array.from(new Array(e + 1));
+	let arr = Array.from({ length: e + 1 }, (_, i) => i);
 	arr = arr.map((v, k) => k).filter((v) => v >= s);
 	return arr;
 }
 
 function arrify(v) {
+	if (v === undefined) return [];
 	return Array.isArray(v) ? v : [v];
 }
 
