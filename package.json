@@ -6,7 +6,21 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["generator", "yield", "back-off", "array", "delay"],
+  "keywords": [
+    "generator",
+    "yield",
+    "back-off",
+    "array",
+    "delay"
+  ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mugendi/yield-arr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mugendi/yield-arr/issues"
+  },
+  "homepage": "https://github.com/mugendi/yield-arr#readme"
 }
