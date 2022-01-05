@@ -211,7 +211,7 @@ class YieldArr {
 		this.stop();
 	}
 
-	load(filePath) {
+	load(filePath, append = false) {
 		validate_file_path(filePath);
 
 		if (!filePath) {
@@ -220,14 +220,21 @@ class YieldArr {
 
 		if (filePath) {
 			// console.log(filePath);
-			this.#arr = fs.readJsonSync(filePath);
+			let loadedArr = fs.readJsonSync(filePath);
 			// set #arrIndex to where we stopped consuming
 			let i = 0;
-			for (i in this.#arr) {
-				if (this.#arr[i].consumed === false) break;
+			for (i in loadedArr) {
+				if (loadedArr[i].consumed === false) break;
 			}
 
-			this.#arrIndex = i;
+			if (!append) {
+				this.#arrIndex = i;
+				this.#arr = loadedArr;
+			} else {
+				// console.log(this.#arr);
+				this.#arr = this.#arr.concat(loadedArr.slice(i));
+			}
+
 		}
 	}
 }

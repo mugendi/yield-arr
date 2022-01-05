@@ -112,11 +112,12 @@ Stops and saves the array status in the file provided.
 - The directory path to the file provided must exist.
 - Where no ```filePath``` is provided, then one is created in a temporary directory in your ```os.tempdir()``` path.
 
-### ```.load([filePath]```
+### ```.load([filePath, append])```
 Loads *frozen* file and sets index at the element that was not consumed before the file was frozen.
 
 **Note**: 
 - Where no ```filePath``` is provided, then the last frozen file, if any, is loaded from the temporary directory created by ```freeze()``` above.
+- If ```append=true``` then the loaded array is appended to the end of any other array that might have been assigned at initialization time or with ```update()```.
 
 
 # Who or what is this for?
