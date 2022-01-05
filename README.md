@@ -83,10 +83,8 @@ Note:
 
 
 # API
-### ```new YieldArr(Array [,Options])```
+### ```new YieldArr([Array,Options])```
 Initializes Yield Arr. 
- 
-\* First argument can be a value or array. Not undefined!
 
 ### ```.get()```
 Get yielded array value.

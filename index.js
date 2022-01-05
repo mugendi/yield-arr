@@ -23,25 +23,11 @@ class YieldArr {
 	#yield;
 	#freezeDir;
 
-	constructor(arr, opts) {
+	constructor(arr, opts={}) {
 		arr = arrify(arr);
-		// Some validations
-		if (arr.length === 0)
-			throw new Error(
-				`An array or value must be passed as the first argument.`
-			);
 
 		this.#arr = object_vals(arr);
 		this.#freezeDir = path.join(os.tmpdir(), 'yield_arr');
-
-		// No Default options
-		// opts = Object.assign(
-		// 	// {
-		// 	// 	backOffDelay: [100, 300],
-		// 	// 	maxDelay: 3000,
-		// 	// },
-		// 	opts
-		// );
 
 		if ('backOffDelay' in opts) {
 			opts.backOffDelay = arrify(opts.backOffDelay).filter(
@@ -60,6 +46,7 @@ class YieldArr {
 					`"opts.backOffDelay" must be a number greater than 1`
 				);
 		}
+
 
 		this.opts = opts;
 		this.#yield = this.#yield_val();
