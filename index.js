@@ -12,7 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+const os = require('os'),
+	path = require('path'),
+	fs = require('fs-extra');
+
+// The main class
 class YieldArr {
+	#arr;
+	#arrIndex;
+	#yield;
+	#freezeDir;
+
 	constructor(arr, opts) {
 		arr = arrify(arr);
 		// Some validations
@@ -21,7 +31,8 @@ class YieldArr {
 				`An array or value must be passed as the first argument.`
 			);
 
-		this.arr = object_vals(arr);
+		this.#arr = object_vals(arr);
+		this.#freezeDir = path.join(os.tmpdir(), 'yield_arr');
 
 		// No Default options
 		// opts = Object.assign(
@@ -51,19 +62,19 @@ class YieldArr {
 		}
 
 		this.opts = opts;
-		this.yield = this.yield_val();
+		this.#yield = this.#yield_val();
 	}
 
-	*yield_val() {
-		this.arrIndex = this.arrIndex == undefined ? 0 : this.arrIndex;
+	*#yield_val() {
+		this.#arrIndex = this.#arrIndex == undefined ? 0 : this.#arrIndex;
 
 		while (true) {
 			let val;
 
-			if (this.arrIndex < this.arr.length) {
-				val = this.arr[this.arrIndex];
+			if (this.#arrIndex < this.#arr.length) {
+				val = this.#arr[this.#arrIndex];
 				val.consumed = true;
-				this.arrIndex++;
+				this.#arrIndex++;
 			}
 
 			yield val;
@@ -75,40 +86,7 @@ class YieldArr {
 		}
 	}
 
-	async get(noValue=false) {
-		let self = this;
-		let val,
-			backOffDelay = this.opts.backOffDelay
-				? this.random_range(...this.opts.backOffDelay)
-				: null;
-
-		// if we have a delay
-		if (backOffDelay) await delay(backOffDelay);
-
-		let v = this.yield.next();
-
-		if (v.done === false) {
-			val = v.value;
-
-			if (val == undefined) {
-				// wait for update
-				let resp = await this.await_arr();
-
-				if (!resp) {
-					self.yieldDone = true;
-                    val = {value:undefined}
-				} else {
-					val = await this.get(true);
-				}
-			}
-		}
-
-        
-
-		return noValue ? val : val.value;
-	}
-
-	random_range(start = 0, end = 100) {
+	#random_range(start = 0, end = 100) {
 		if (!this.rangeArr) {
 			let rangeArgs = [start, end];
 			// ensure range
@@ -121,7 +99,7 @@ class YieldArr {
 		return sample(this.rangeArr);
 	}
 
-	await_arr() {
+	#await_arr() {
 		let self = this;
 		return new Promise((resolve, reject) => {
 			let ms = 50,
@@ -132,13 +110,12 @@ class YieldArr {
 				let interval = setInterval(() => {
 					delay += ms;
 
-
 					if (delay >= maxDelay) {
 						clearInterval(interval);
 						return resolve(false);
 					}
 
-					if (this.arrIndex < this.arr.length) {
+					if (this.#arrIndex < this.#arr.length) {
 						clearInterval(interval);
 						return resolve(true);
 					}
@@ -149,12 +126,116 @@ class YieldArr {
 		});
 	}
 
+	#prune_freeze_dir(returnLast = false) {
+		// get the last frozen from default freeze dir
+		let files = fs
+			.readdirSync(this.#freezeDir)
+			.map((f) => path.join(this.#freezeDir, f));
+
+		if (returnLast) {
+			let lastFrozen = files.pop();
+			// remove others
+			files.map(fs.unlinkSync);
+			return lastFrozen;
+		} else {
+			fs.emptyDirSync(this.#freezeDir);
+			return null;
+		}
+	}
+
+	async get(noValue = false) {
+		let self = this;
+		let val,
+			backOffDelay = this.opts.backOffDelay
+				? this.#random_range(...this.opts.backOffDelay)
+				: null;
+
+		// if we have a delay
+		if (backOffDelay) await delay(backOffDelay);
+
+		let v = this.#yield.next();
+
+		if (v.done === false) {
+			val = v.value;
+
+			if (val == undefined) {
+				// wait for update
+				let resp = await this.#await_arr();
+
+				if (!resp) {
+					self.yieldDone = true;
+					val = { value: undefined };
+				} else {
+					val = await this.get(true);
+				}
+			}
+		} else {
+			val = { value: undefined };
+		}
+
+		return noValue ? val : val.value;
+	}
+
+	arr() {
+		return this.#arr;
+	}
+
 	update(arr) {
 		// No updates if we are done
 		if (this.yieldDone) return;
 		// arrify
 		arr = object_vals(arrify(arr));
-		this.arr = [...this.arr, ...arr];
+		this.#arr = [...this.#arr, ...arr];
+	}
+
+	stop() {
+		this.yieldDone = true;
+	}
+
+	freeze(filePath) {
+		validate_file_path(filePath);
+
+		if (!filePath) {
+			// make temp ppath
+			filePath = path.join(
+				this.#freezeDir,
+				Date.now().toString() + '.json'
+			);
+
+			fs.existsSync(this.#freezeDir) && fs.ensureDirSync(this.#freezeDir);
+			this.#prune_freeze_dir();
+		}
+
+		fs.writeJSONSync(filePath, this.#arr);
+
+		this.stop();
+	}
+
+	load(filePath) {
+		validate_file_path(filePath);
+
+		if (!filePath) {
+			filePath = this.#prune_freeze_dir(true);
+		}
+
+		if (filePath) {
+			// console.log(filePath);
+			this.#arr = fs.readJsonSync(filePath);
+			// set #arrIndex to where we stopped consuming
+			let i = 0;
+			for (i in this.#arr) {
+				if (this.#arr[i].consumed === false) break;
+			}
+
+			this.#arrIndex = i;
+		}
+	}
+}
+
+function validate_file_path(filePath) {
+	if (filePath) {
+		if (typeof filePath !== 'string')
+			throw new Error('File Path must be a string');
 	}
 }
 

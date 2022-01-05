@@ -30,13 +30,13 @@ When you need to yield array values in a **"disciplined manner"** ;)
 		let v = await Y.get();
 		// no more items? break loop
 		if (v == undefined) break;
-		debug(v, Y.arr.length);
+		debug(v, Y.arr().length);
 	}
 
 	debug('done');
 
     // inpect the array
-    debug(Y.arr.slice(-3));
+    debug(Y.arr().slice(-3));
 
 	// function used to generate arrays in this example
 	function gen_array() {
@@ -96,12 +96,27 @@ Update array items. Works by concatenating new items at the end of the array (FI
 
 \* First argument can be a value or array. 
 
-### ```.arr```
+### ```.arr()```
 You may want to look at the array being consumed. You can do so by inspecting ```Y.arr``` as shown i example above.
 
 **Note:**
 - Array items are saved as objects such as : ```{ consumed: true, value: 2 }```. This means that whenever you inspect the array, you can see all items that have been consumed and those pending.
 
+### ```.stop()```
+Stops all yielding immediately and next ```.get()``` call will get an ```undefined``` value.
+
+### ```.freeze([filePath])```
+Stops and saves the array status in the file provided. 
+
+**Note**: 
+- The directory path to the file provided must exist.
+- Where no ```filePath``` is provided, then one is created in a temporary directory in your ```os.tempdir()``` path.
+
+### ```.load([filePath]```
+Loads *frozen* file and sets index at the element that was not consumed before the file was frozen.
+
+**Note**: 
+- Where no ```filePath``` is provided, then the last frozen file, if any, is loaded from the temporary directory created by ```freeze()``` above.
 
 
 # Who or what is this for?
