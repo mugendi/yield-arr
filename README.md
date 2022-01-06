@@ -86,6 +86,42 @@ Note:
 ### ```new YieldArr([Array,Options])```
 Initializes Yield Arr. 
 
+### options
+
+```backOffDelay <Array>```
+ 
+ An array containing the minimum and maximum backoff delay values in milliseconds: 
+ - Default is null thus no delay 
+ - Example: [100, 300]
+
+```maxDelay <Number>``` 
+The longest time to wait for new values. Past this duration, the yiending ends.
+- Default 0
+- Example: 2000
+
+```filterFunc <function>```
+A function used to filter the array being added. This is important especially if you want to avoid duplicate values.
+
+See example below:
+```javascript
+filterFunc: function (yieldingArr, newArr) {
+	
+	// Pick values of the Yielding Array. This is the array already added
+	let valsA = yieldingArr.map( o => o.value  );
+
+	// now filter against this (valsA) array
+	newArr = newArr.filter((o) => {
+		// ensure any value (o.value) is unique
+		return valsA.indexOf(o.value) == -1;
+	});
+
+	// return filtered array
+	return newArr;
+},
+```
+
+This function is expected to return an array that will then be added to the yield queue.
+
 ### ```.get()```
 Get yielded array value.
 

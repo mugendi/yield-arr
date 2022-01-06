@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+const { rmSync } = require('fs');
 const os = require('os'),
 	path = require('path'),
 	fs = require('fs-extra');
@@ -23,7 +24,7 @@ class YieldArr {
 	#yield;
 	#freezeDir;
 
-	constructor(arr, opts={}) {
+	constructor(arr, opts = {}) {
 		arr = arrify(arr);
 
 		this.#arr = object_vals(arr);
@@ -47,7 +48,12 @@ class YieldArr {
 				);
 		}
 
+		if ('filterFunc' in opts) {
+			if (typeof opts.filterFunc !== 'function')
+				throw new Error(`"opts.filterFunc" must be a function`);
+		}
 
+		// console.log({opts});
 		this.opts = opts;
 		this.#yield = this.#yield_val();
 	}
@@ -172,6 +178,12 @@ class YieldArr {
 		if (this.yieldDone) return;
 		// arrify
 		arr = object_vals(arrify(arr));
+
+		// Filter Unique
+		if (this.opts.filterFunc) {
+			arr = arrify(this.opts.filterFunc(this.#arr, arr));
+		}
+
 		this.#arr = [...this.#arr, ...arr];
 	}
 
@@ -221,7 +233,6 @@ class YieldArr {
 				// console.log(this.#arr);
 				this.#arr = this.#arr.concat(loadedArr.slice(i));
 			}
-
 		}
 	}
 }
