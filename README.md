@@ -35,7 +35,7 @@ When you need to yield array values in a **"disciplined manner"** ;)
 
 	debug('done');
 
-    // inpect the array
+    // inspect the array
     debug(Y.arr().slice(-3));
 
 	// function used to generate arrays in this example
@@ -90,12 +90,12 @@ Initializes Yield Arr.
 
 ```backOffDelay <Array>```
  
- An array containing the minimum and maximum backoff delay values in milliseconds: 
+ An array containing the minimum and maximum back off delay values in milliseconds: 
  - Default is null thus no delay 
  - Example: [100, 300]
 
 ```maxDelay <Number>``` 
-The longest time to wait for new values. Past this duration, the yiending ends.
+The longest time to wait for new values. Past this duration, the yielding ends.
 - Default 0
 - Example: 2000
 
@@ -105,7 +105,7 @@ A function used to filter the array being added. This is important especially if
 See example below:
 ```javascript
 filterFunc: function (yieldingArr, newArr) {
-	
+
 	// Pick values of the Yielding Array. This is the array already added
 	let valsA = yieldingArr.map( o => o.value  );
 
