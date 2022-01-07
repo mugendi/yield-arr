@@ -120,6 +120,9 @@ class YieldArr {
 	}
 
 	#prune_freeze_dir(returnLast = false) {
+
+		if (!fs.existsSync(this.#freezeDir)) return;
+
 		// get the last frozen from default freeze dir
 		let files = fs
 			.readdirSync(this.#freezeDir)
@@ -201,9 +204,11 @@ class YieldArr {
 				Date.now().toString() + '.json'
 			);
 
-			fs.existsSync(this.#freezeDir) && fs.ensureDirSync(this.#freezeDir);
 			this.#prune_freeze_dir();
 		}
+
+		// ensure directory
+		fs.ensureDirSync(path.dirname(filePath));
 
 		fs.writeJSONSync(filePath, this.#arr);
 
