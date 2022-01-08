@@ -139,6 +139,9 @@ You may want to look at the array being consumed. You can do so by inspecting ``
 **Note:**
 - Array items are saved as objects such as : ```{ consumed: true, value: 2 }```. This means that whenever you inspect the array, you can see all items that have been consumed and those pending.
 
+### ```.limit(number)```
+Sets an array length limit beyond which no other values can be added. The default is ```Infinity```.
+
 ### ```.index()```
 Returns the current index of the array being consumed. At initialization, or after ```load()```, the value is always zero. Unless you load with the ```append``` flag set to true.
 

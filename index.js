@@ -24,6 +24,7 @@ class YieldArr {
 	#arrIndex;
 	#yield;
 	#freezeDir;
+	#limit;
 
 	constructor(arr, opts = {}) {
 		arr = arrify(arr);
@@ -57,10 +58,11 @@ class YieldArr {
 		// console.log({opts});
 		this.opts = opts;
 		this.consume = this.get;
-		this.#loaded = false
 
+		this.#loaded = false;
+		this.#arr = [];
 		this.#arrIndex = 0;
-
+		this.#limit = Infinity;
 		this.#yield = this.#yield_val();
 	}
 
@@ -192,7 +194,19 @@ class YieldArr {
 			arr = arrify(this.opts.filterFunc(this.#arr, arr));
 		}
 
-		this.#arr = [...this.#arr, ...arr];
+		// merge into array
+		this.#arr.push(...arr);
+		// limit array always
+		this.#arr = this.#arr.slice(0, this.#limit);
+	}
+
+	limit(n) {
+		n = Number(n);
+
+		if (isNaN(n)) return;
+
+		// set limit
+		this.#limit = n;
 	}
 
 	stop() {
@@ -223,7 +237,7 @@ class YieldArr {
 	load(filePath, append = false) {
 		validate_file_path(filePath);
 
-		if(!fs.existsSync(filePath)) return
+		if (!fs.existsSync(filePath)) return;
 
 		if (!filePath) {
 			filePath = this.#prune_freeze_dir(true);
@@ -242,7 +256,7 @@ class YieldArr {
 			// start at next index
 			i++;
 
-			this.#loaded = true
+			this.#loaded = true;
 
 			if (!append) {
 				this.#arrIndex = i;
@@ -254,8 +268,8 @@ class YieldArr {
 		}
 	}
 
-	loaded(){
-		return this.#loaded
+	loaded() {
+		return this.#loaded;
 	}
 
 	index() {
