@@ -201,6 +201,9 @@ class YieldArr {
 	}
 
 	limit(n) {
+
+		if(n==undefined) return this.#limit;
+
 		n = Number(n);
 
 		if (isNaN(n)) return;
