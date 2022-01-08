@@ -55,6 +55,8 @@ class YieldArr {
 
 		// console.log({opts});
 		this.opts = opts;
+		this.consume = this.get;
+		
 		this.#yield = this.#yield_val();
 	}
 
@@ -120,7 +122,6 @@ class YieldArr {
 	}
 
 	#prune_freeze_dir(returnLast = false) {
-
 		if (!fs.existsSync(this.#freezeDir)) return;
 
 		// get the last frozen from default freeze dir
@@ -210,7 +211,7 @@ class YieldArr {
 		// ensure directory
 		fs.ensureDirSync(path.dirname(filePath));
 
-		fs.writeJSONSync(filePath, this.#arr);
+		fs.writeJSONSync(filePath, this.#arr, { spaces: 4 });
 
 		this.stop();
 	}
@@ -239,6 +240,10 @@ class YieldArr {
 				this.#arr = this.#arr.concat(loadedArr.slice(i));
 			}
 		}
+	}
+
+	index() {
+		return this.#arrIndex;
 	}
 }
 

@@ -125,6 +125,9 @@ This function is expected to return an array that will then be added to the yiel
 ### ```.get()```
 Get yielded array value.
 
+### ```.consume()```
+Alias of ```get()``` above.
+
 ### ```.update(Array)```
 Update array items. Works by concatenating new items at the end of the array (FIFO).
 
@@ -139,6 +142,7 @@ You may want to look at the array being consumed. You can do so by inspecting ``
 ### ```.stop()```
 Stops all yielding immediately and next ```.get()``` call will get an ```undefined``` value.
 
+
 ### ```.freeze([filePath])```
 Stops and saves the array status in the file provided. 
 
@@ -147,7 +151,10 @@ Stops and saves the array status in the file provided.
 - Where no ```filePath``` is provided, then one is created in a temporary directory in your ```os.tempdir()``` path.
 
 ### ```.load([filePath, append])```
-Loads *frozen* file and sets index at the element that was not consumed before the file was frozen.
+Loads *frozen* file and sets index at the element that was not consumed before the file was frozen. This overwrites any array currently being consumed. If ```append``` is set to true, then the array being loaded is concatenated to that being consumed.
+
+### ```.index()```
+Returns the current index of the array being consumed. At initialization, or after ```load()```, the value is always zero. Unless you load with the ```append``` flag set to true.
 
 **Note**: 
 - Where no ```filePath``` is provided, then the last frozen file, if any, is loaded from the temporary directory created by ```freeze()``` above.
@@ -163,4 +170,58 @@ This module was written as part of a crawler. It works as follows.
 3. We then "get" (consume) the growing array link by link while using a decent "backOffDelay" not to overwhelm severs.
 4. At the end, when there are no more links to add, and we have waited for about 3 seconds (maxDelay), we know there are no more links and we are done with site crawl.
 
-Let's see what you get to use it for!
+
+# When to ```freeze``` and ```load```
+
+As stated above, this script was built as a part of a web crawler. In my experience it is really useful for queueing repetitive tasks such as:
+
+1. Loading a page
+2. Fetching all links on page
+3. Running each link from 1-3 again...
+
+In this scenario, especially during the development phase, instead of fetching all the pages each time you can have a script as follows:
+
+```javascript
+
+...
+
+// initialize with an empty array
+const Y = new YieldArr([], opts);
+
+
+let url = "your url here";
+
+// update with url...
+Y.update(url)
+
+/**
+ * Dev. Options...
+ * For quick dev, you can instead load from frozen array 
+ */
+
+// Y.load()
+
+// consume in a loop that runs forever till all links are fetched
+while(true){
+
+	let consumedURL = await Y.get();
+
+	// stop when we reach the end
+	if(consumedURL==undefined) break
+
+	// fetch all links using your own methods
+	let urlsInPage = await yourGetUrlsFn(consumedURL);
+
+	// re-queue all links...
+	Y.update(urls);
+
+}
+
+// We have finished. For quick dev, freeze
+Y.freeze()
+
+```
+Now after running the code and crawling an entire site, you will have the array frozen. Instead of running that lengthy process again, simply uncomment the ```Y.load()``` line and proceed.
+
+
+If you build something beautiful using this, please share! I'm curious to see what you get to use it for!
