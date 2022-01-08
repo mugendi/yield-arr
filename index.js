@@ -56,7 +56,8 @@ class YieldArr {
 		// console.log({opts});
 		this.opts = opts;
 		this.consume = this.get;
-		
+		this.#arrIndex = 0;
+
 		this.#yield = this.#yield_val();
 	}
 
@@ -64,20 +65,20 @@ class YieldArr {
 		this.#arrIndex = this.#arrIndex == undefined ? 0 : this.#arrIndex;
 
 		while (true) {
-			let val;
-
-			if (this.#arrIndex < this.#arr.length) {
-				val = this.#arr[this.#arrIndex];
-				val.consumed = true;
+			// pick value or undefined
+			let val = this.#arr[this.#arrIndex] || null;
+			// indicate we consumed
+			if (val) val.consumed = true;
+			// increment index
+			if (this.#arrIndex <= this.#arr.length) {
 				this.#arrIndex++;
 			}
 
+			// yield
 			yield val;
 
-			if (this.yieldDone) {
-				return;
-			}
-			// else
+			// unless we are already done
+			if (this.yieldDone) return;
 		}
 	}
 
