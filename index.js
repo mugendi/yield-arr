@@ -220,7 +220,7 @@ class YieldArr {
 	load(filePath, append = false) {
 		validate_file_path(filePath);
 
-		if(!fs.existsSync(filePath)) returnr
+		if(!fs.existsSync(filePath)) return
 
 		if (!filePath) {
 			filePath = this.#prune_freeze_dir(true);
