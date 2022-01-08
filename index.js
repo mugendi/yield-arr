@@ -229,9 +229,13 @@ class YieldArr {
 			let loadedArr = fs.readJsonSync(filePath);
 			// set #arrIndex to where we stopped consuming
 			let i = 0;
+
 			for (i in loadedArr) {
 				if (loadedArr[i].consumed === false) break;
 			}
+
+			// start at next index
+			i++;
 
 			if (!append) {
 				this.#arrIndex = i;
