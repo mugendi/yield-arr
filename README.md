@@ -139,6 +139,10 @@ You may want to look at the array being consumed. You can do so by inspecting ``
 **Note:**
 - Array items are saved as objects such as : ```{ consumed: true, value: 2 }```. This means that whenever you inspect the array, you can see all items that have been consumed and those pending.
 
+### ```.index()```
+Returns the current index of the array being consumed. At initialization, or after ```load()```, the value is always zero. Unless you load with the ```append``` flag set to true.
+
+
 ### ```.stop()```
 Stops all yielding immediately and next ```.get()``` call will get an ```undefined``` value.
 
@@ -153,13 +157,12 @@ Stops and saves the array status in the file provided.
 ### ```.load([filePath, append])```
 Loads *frozen* file and sets index at the element that was not consumed before the file was frozen. This overwrites any array currently being consumed. If ```append``` is set to true, then the array being loaded is concatenated to that being consumed.
 
-### ```.index()```
-Returns the current index of the array being consumed. At initialization, or after ```load()```, the value is always zero. Unless you load with the ```append``` flag set to true.
-
 **Note**: 
 - Where no ```filePath``` is provided, then the last frozen file, if any, is loaded from the temporary directory created by ```freeze()``` above.
 - If ```append=true``` then the loaded array is appended to the end of any other array that might have been assigned at initialization time or with ```update()```.
 
+### ```loaded()```
+Returns ```true``` whenever you successfully load an array using ```load()```
 
 # Who or what is this for?
 

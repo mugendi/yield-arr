@@ -20,6 +20,7 @@ const os = require('os'),
 // The main class
 class YieldArr {
 	#arr;
+	#loaded;
 	#arrIndex;
 	#yield;
 	#freezeDir;
@@ -56,6 +57,8 @@ class YieldArr {
 		// console.log({opts});
 		this.opts = opts;
 		this.consume = this.get;
+		this.#loaded = false
+
 		this.#arrIndex = 0;
 
 		this.#yield = this.#yield_val();
@@ -239,6 +242,8 @@ class YieldArr {
 			// start at next index
 			i++;
 
+			this.#loaded = true
+
 			if (!append) {
 				this.#arrIndex = i;
 				this.#arr = loadedArr;
@@ -247,6 +252,10 @@ class YieldArr {
 				this.#arr = this.#arr.concat(loadedArr.slice(i));
 			}
 		}
+	}
+
+	loaded(){
+		return this.#loaded
 	}
 
 	index() {
